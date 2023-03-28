@@ -1,0 +1,49 @@
+---
+- name: Install Dokku on Ubuntu 20.04
+  hosts: all
+  become: yes
+  gather_facts: yes
+  vars:
+    dokku_version: '0.26.6'
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+        state: present
+
+    - name: Add Dokku GPG key
+      ansible.builtin.apt_key:
+        url: https://packagecloud.io/gpg.key
+        state: present
+
+    - name: Add Dokku repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch={{ ansible_architecture }}] https://packagecloud.io/dokku/dokku/ubuntu/ {{ ansible_distribution_release }} main"
+        state: present
+
+    - name: Update apt cache after adding Dokku repository
+      apt:
+        update_cache: yes
+
+    - name: Install Dokku
+      apt:
+        name: dokku
+        state: present
+        version: "{{ dokku_version }}"
+
+    - name: Install Dokku core dependencies
+      command: dokku plugin:install-dependencies --core
+
+    - name: Set Dokku global domain
+      command: dokku domains:set-global {{ inventory_hostname }}

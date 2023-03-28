@@ -1,3 +1,4 @@
+ansible/inventory
 # Local .terraform directories
 **/.terraform/*
 

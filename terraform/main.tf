@@ -4,7 +4,7 @@ provider "aws" {
 
 locals {
   key_name        = "id_rsa"
-  instance_type   = "t2.micro"
+  instance_type   = "t2.small"
   ami_id          = "ami-0a695f0d95cefc163" # Ubuntu 20.04 LTS
 }
 
@@ -54,11 +54,4 @@ resource "aws_instance" "dokku" {
   tags = {
     Name = "dokku-instance"
   }
-
-  # user_data = <<-EOF
-  #               #!/bin/bash
-  #               wget -NP . https://dokku.com/install/v0.30.3/bootstrap.sh
-  #               cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
-  #               dokku domains:set-global jowens.dev
-  #             EOF
 }

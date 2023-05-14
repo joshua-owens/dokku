@@ -4,7 +4,7 @@
   become: yes
   gather_facts: yes
   vars:
-    dokku_version: '0.26.6'
+    dokku_version: '0.30.3'
 
   tasks:
     - name: Update apt cache
@@ -22,28 +22,18 @@
           - git
         state: present
 
-    - name: Add Dokku GPG key
-      ansible.builtin.apt_key:
-        url: https://packagecloud.io/gpg.key
-        state: present
 
-    - name: Add Dokku repository
-      ansible.builtin.apt_repository:
-        repo: "deb [arch={{ ansible_architecture }}] https://packagecloud.io/dokku/dokku/ubuntu/ {{ ansible_distribution_release }} main"
-        state: present
+    - name: Download Dokku Install Script
+      get_url:
+        url: "https://dokku.com/install/v0.30.3/bootstrap.sh"
+        dest: "~/bootstrap.sh"
+    
+    - name: Execute bootstrap.sh
+      shell: "DOKKU_TAG=v0.30.3 bash ~/bootstrap.sh"
 
-    - name: Update apt cache after adding Dokku repository
-      apt:
-        update_cache: yes
+    - name: Add admin ssh key 
+      shell: "cat /home/ubuntu/.ssh/authorized_keys | dokku ssh-keys:add admin"
 
-    - name: Install Dokku
-      apt:
-        name: dokku
-        state: present
-        version: "{{ dokku_version }}"
 
-    - name: Install Dokku core dependencies
-      command: dokku plugin:install-dependencies --core
-
-    - name: Set Dokku global domain
-      command: dokku domains:set-global {{ inventory_hostname }}
+    - name: Set dokku domain 
+      shell: "dokku domains:set-global jowens.dev"

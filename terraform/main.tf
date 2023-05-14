@@ -36,6 +36,13 @@ resource "aws_security_group" "dokku_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_instance" "dokku" {
@@ -48,10 +55,10 @@ resource "aws_instance" "dokku" {
     Name = "dokku-instance"
   }
 
-  user_data = <<-EOF
-                #!/bin/bash
-                export DOKKU_TAG=v0.26.6
-                wget https://raw.githubusercontent.com/dokku/dokku/$DOKKU_TAG/bootstrap.sh
-                sudo DOKKU_TAG=$DOKKU_TAG bash bootstrap.sh
-              EOF
+  # user_data = <<-EOF
+  #               #!/bin/bash
+  #               wget -NP . https://dokku.com/install/v0.30.3/bootstrap.sh
+  #               cat ~/.ssh/authorized_keys | dokku ssh-keys:add admin
+  #               dokku domains:set-global jowens.dev
+  #             EOF
 }
